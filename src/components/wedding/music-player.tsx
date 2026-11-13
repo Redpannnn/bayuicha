@@ -1,191 +1,86 @@
 "use client";
 
 import * as React from "react";
-import { Play, Pause, SkipBack, SkipForward, Repeat, Shuffle } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Repeat, Volume2, VolumeX } from "lucide-react";
 
-/** gentle melody: pairs of [freq, beats] — a calm Cmaj arpeggio waltz */
-const MELODY: number[][] = [
-  [523.25, 1], [659.25, 1], [783.99, 1],
-  [659.25, 1], [523.25, 1], [440.0, 2],
-  [493.88, 1], [587.33, 1], [659.25, 1],
-  [587.33, 1], [493.88, 1], [392.0, 2],
-  [523.25, 1], [659.25, 1], [783.99, 1],
-  [880.0, 1], [783.99, 1], [659.25, 1],
-  [587.33, 1], [523.25, 1], [493.88, 1],
-  [440.0, 1], [392.0, 1], [523.25, 2],
-];
-const TEMPO = 84; // BPM
-const BEAT_LEN = 60 / TEMPO;
-const TOTAL_BEATS = MELODY.reduce((sum, n) => sum + n[1], 0);
+/** Lagu background — file statis di public/music. */
+const TRACK_SRC = "/music/the-way-you-look-at-me.mp3";
+const TRACK_TITLE = "The Way You Look At Me";
+const TRACK_ARTIST = "Nyoman Paul, Andi Rianto";
 
 /**
  * WeddingMusicPlayer
- * Uses the Web Audio API to synthesize a soft, looping ambient melody
- * so the player works fully offline without any external audio file.
- * Provides play/pause, seek bar, skip (restart), loop, and shuffle.
+ * Memutar lagu pernikahan (MP3) pakai HTML5 <audio>.
+ * UI sama seperti sebelumnya: album art, judul, seek bar,
+ * loop, restart, play/pause, dan mute.
  */
 export function WeddingMusicPlayer() {
-  const audioRef = React.useRef<AudioContext | null>(null);
-  const masterGainRef = React.useRef<GainNode | null>(null);
-  const schedTimerRef = React.useRef<number | null>(null);
-  const nextNoteTimeRef = React.useRef<number>(0);
-  const stepRef = React.useRef<number>(0);
-  const startTimeRef = React.useRef<number>(0);
-  const pausedAtRef = React.useRef<number>(0);
-
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [progress, setProgress] = React.useState(0); // 0..1
   const [loop, setLoop] = React.useState(true);
-  const [shuffle, setShuffle] = React.useState(false);
-  const [duration, setDuration] = React.useState(48); // seconds, one loop length
-
-  // gentle melody: pairs of [freq, beats] — a calm Cmaj arpeggio waltz
-  // (defined at module level: MELODY, TEMPO, BEAT_LEN, TOTAL_BEATS)
-
-  const tempo = TEMPO; // BPM
-  const beatLen = BEAT_LEN;
-  const totalBeats = TOTAL_BEATS;
-
-  // ensure audio context exists
-  const ensureCtx = () => {
-    if (!audioRef.current) {
-      const Ctx =
-        (window as unknown as { AudioContext: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
-          .AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new Ctx();
-      audioRef.current = ctx;
-      const gain = ctx.createGain();
-      gain.gain.value = 0.18;
-      gain.connect(ctx.destination);
-      masterGainRef.current = gain;
-    }
-    return audioRef.current;
-  };
-
-  // keep shuffle in a ref so scheduler reads latest value without re-subscribing
-  const shuffleRef = React.useRef(shuffle);
-  React.useEffect(() => {
-    shuffleRef.current = shuffle;
-  }, [shuffle]);
-
-  const playNote = (ctx: AudioContext, freq: number, time: number, dur: number) => {
-    const gain = masterGainRef.current!;
-    // soft triangle pad + sine bell
-    const osc1 = ctx.createOscillator();
-    const g1 = ctx.createGain();
-    osc1.type = "triangle";
-    osc1.frequency.value = freq;
-    g1.gain.setValueAtTime(0, time);
-    g1.gain.linearRampToValueAtTime(0.5, time + 0.02);
-    g1.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.95);
-    osc1.connect(g1).connect(gain);
-    osc1.start(time);
-    osc1.stop(time + dur);
-
-    const osc2 = ctx.createOscillator();
-    const g2 = ctx.createGain();
-    osc2.type = "sine";
-    osc2.frequency.value = freq * 2;
-    g2.gain.setValueAtTime(0, time);
-    g2.gain.linearRampToValueAtTime(0.12, time + 0.01);
-    g2.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.8);
-    osc2.connect(g2).connect(gain);
-    osc2.start(time);
-    osc2.stop(time + dur);
-  };
-
-  const runScheduler = React.useCallback(() => {
-    const ctx = audioRef.current;
-    const gain = masterGainRef.current;
-    if (!ctx || !gain) return;
-    const lookahead = 0.2; // schedule 200ms ahead
-    while (nextNoteTimeRef.current < ctx.currentTime + lookahead) {
-      const m = MELODY;
-      let idx = stepRef.current % m.length;
-      if (shuffleRef.current && Math.random() > 0.6) {
-        idx = Math.floor(Math.random() * m.length);
-      }
-      const [freq, beats] = m[idx];
-      playNote(ctx, freq, nextNoteTimeRef.current, beats * beatLen);
-      nextNoteTimeRef.current += beats * beatLen;
-      stepRef.current += 1;
-    }
-  }, [beatLen]);
-
-  const startPlayback = React.useCallback(() => {
-    const ctx = ensureCtx();
-    if (ctx.state === "suspended") void ctx.resume();
-    startTimeRef.current = ctx.currentTime - pausedAtRef.current;
-    nextNoteTimeRef.current = ctx.currentTime + 0.05;
-    runScheduler();
-    schedTimerRef.current = window.setInterval(runScheduler, 60);
-    setIsPlaying(true);
-  }, [runScheduler]);
-
-  const stopPlayback = () => {
-    if (schedTimerRef.current) {
-      clearInterval(schedTimerRef.current);
-      schedTimerRef.current = null;
-    }
-    const ctx = audioRef.current;
-    if (ctx) pausedAtRef.current = ctx.currentTime - startTimeRef.current;
-    setIsPlaying(false);
-  };
+  const [muted, setMuted] = React.useState(false);
+  const [duration, setDuration] = React.useState(0); // detik, dari metadata
 
   const togglePlay = () => {
-    if (isPlaying) stopPlayback();
-    else startPlayback();
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      void audio.play().catch(() => setIsPlaying(false));
+    } else {
+      audio.pause();
+    }
   };
 
   const restart = () => {
-    pausedAtRef.current = 0;
-    stepRef.current = 0;
-    if (isPlaying) {
-      stopPlayback();
-      setTimeout(startPlayback, 30);
-    } else {
-      setProgress(0);
-    }
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    setProgress(0);
   };
 
-  // progress ticker
-  React.useEffect(() => {
-    if (!isPlaying) return;
-    const id = window.setInterval(() => {
-      const ctx = audioRef.current;
-      if (!ctx) return;
-      const elapsed = ctx.currentTime - startTimeRef.current;
-      const total = totalBeats * beatLen;
-      const p = (elapsed % total) / total;
-      setProgress(p);
-      if (!loop && elapsed > total) {
-        stopPlayback();
-        setProgress(1);
-      }
-    }, 200);
-    return () => clearInterval(id);
-     
-  }, [isPlaying, loop, totalBeats, beatLen]);
+  const seek = (v: number) => {
+    const audio = audioRef.current;
+    if (!audio || !duration) return;
+    audio.currentTime = v * duration;
+    setProgress(v);
+  };
 
-  React.useEffect(() => {
-    return () => {
-      if (schedTimerRef.current) clearInterval(schedTimerRef.current);
-      if (audioRef.current) void audioRef.current.close();
-    };
-  }, []);
+  const toggleMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = !audio.muted;
+    setMuted(audio.muted);
+  };
 
   const fmt = (sec: number) => {
+    if (!Number.isFinite(sec) || sec <= 0) return "0:00";
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const total = totalBeats * beatLen;
-  const current = progress * total;
+  const current = progress * duration;
 
   return (
     <div className="mx-auto w-full max-w-sm rounded-2xl bg-[#2f3465] p-3 text-cream shadow-lg">
+      <audio
+        ref={audioRef}
+        src={TRACK_SRC}
+        preload="metadata"
+        loop={loop}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => {
+          setIsPlaying(false);
+          setProgress(0);
+        }}
+        onTimeUpdate={(e) => {
+          const a = e.currentTarget;
+          if (a.duration > 0) setProgress(a.currentTime / a.duration);
+        }}
+        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
+      />
       <div className="flex items-center gap-3">
         {/* album art */}
         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-[#3a4170] ring-2 ring-cream/40">
@@ -197,10 +92,13 @@ export function WeddingMusicPlayer() {
         </div>
         {/* track info + seek */}
         <div className="flex-1">
-          <div className="flex items-center justify-between text-xs font-hand">
-            <span className="text-cream/90">Our Wedding Song</span>
-            <span className="text-cream/70">
-              {fmt(current)} / {fmt(total)}
+          <div className="flex items-center justify-between gap-2 text-xs font-hand">
+            <span className="truncate text-cream/90" title={TRACK_ARTIST}>
+              {TRACK_TITLE}{" "}
+              <span className="text-cream/60">— {TRACK_ARTIST}</span>
+            </span>
+            <span className="flex-shrink-0 text-cream/70">
+              {fmt(current)} / {fmt(duration)}
             </span>
           </div>
           <div className="mt-2">
@@ -211,15 +109,7 @@ export function WeddingMusicPlayer() {
               max={1}
               step={0.001}
               value={progress}
-              onChange={(e) => {
-                const v = Number(e.target.value);
-                setProgress(v);
-                pausedAtRef.current = v * total;
-                if (isPlaying) {
-                  stopPlayback();
-                  setTimeout(startPlayback, 30);
-                }
-              }}
+              onChange={(e) => seek(Number(e.target.value))}
               aria-label="Seek"
               style={{
                 background: `linear-gradient(to right, #a04050 ${progress * 100}%, rgba(253,248,240,0.25) ${progress * 100}%)`,
@@ -235,11 +125,12 @@ export function WeddingMusicPlayer() {
         <button
           onClick={() => setLoop((v) => !v)}
           aria-label="Loop"
+          aria-pressed={loop}
           className={`transition hover:text-mustard ${loop ? "text-mustard" : "text-cream/60"}`}
         >
           <Repeat className="h-3.5 w-3.5" />
         </button>
-        <button onClick={restart} aria-label="Previous" className="transition hover:text-mustard">
+        <button onClick={restart} aria-label="Ulangi dari awal" className="transition hover:text-mustard">
           <SkipBack className="h-4 w-4" />
         </button>
         <button
@@ -249,15 +140,16 @@ export function WeddingMusicPlayer() {
         >
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="ml-0.5 h-4 w-4" />}
         </button>
-        <button onClick={restart} aria-label="Next" className="transition hover:text-mustard">
+        <button onClick={restart} aria-label="Ulangi dari awal" className="transition hover:text-mustard">
           <SkipForward className="h-4 w-4" />
         </button>
         <button
-          onClick={() => setShuffle((v) => !v)}
-          aria-label="Shuffle"
-          className={`transition hover:text-mustard ${shuffle ? "text-mustard" : "text-cream/60"}`}
+          onClick={toggleMute}
+          aria-label={muted ? "Unmute" : "Mute"}
+          aria-pressed={muted}
+          className={`transition hover:text-mustard ${muted ? "text-cream/60" : "text-mustard"}`}
         >
-          <Shuffle className="h-3.5 w-3.5" />
+          {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
         </button>
       </div>
     </div>
