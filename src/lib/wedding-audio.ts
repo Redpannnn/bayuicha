@@ -16,7 +16,7 @@ let audio: HTMLAudioElement | null = null;
 
 export function getWeddingAudio(): HTMLAudioElement {
   if (!audio) {
-    audio = new Audio("/music/the-way-you-look-at-me.mp3");
+    audio = new Audio("/music/Gleen Fredly - Kasih Putih.mp3");
     audio.preload = "metadata";
     audio.loop = true;
   }
