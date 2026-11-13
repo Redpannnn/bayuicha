@@ -45,9 +45,10 @@ export function InvitationSection() {
             </OrnateFrame>
             <h3 className="mt-3 font-hand text-3xl font-bold text-maroon">Bayu</h3>
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
-              Bayu Pamungkas, S.HUT 
+              <span className="font-bold">Bayu Pamungkas, S.HUT</span>
               <br />
-              Putra dari 
+              <br />
+              Putra dari
               <br />
               bapak Warsito dan ibu Ginah
             </p>
@@ -64,9 +65,10 @@ export function InvitationSection() {
             </OrnateFrame>
             <h3 className="mt-3 font-hand text-3xl font-bold text-maroon">Icha</h3>
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
-              Aisyah Putri, S.HUT 
+              <span className="font-bold">Aisyah Putri, S.HUT</span>
               <br />
-              Putri dari 
+              <br />
+              Putri dari
               <br />
               bapak Kasaruddin dan ibu Sattia
             </p>
