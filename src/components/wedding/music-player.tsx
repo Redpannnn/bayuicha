@@ -2,29 +2,65 @@
 
 import * as React from "react";
 import { Play, Pause, SkipBack, SkipForward, Repeat, Volume2, VolumeX } from "lucide-react";
+import { getWeddingAudio } from "@/lib/wedding-audio";
 
-/** Lagu background — file statis di public/music. */
-const TRACK_SRC = "/music/the-way-you-look-at-me.mp3";
 const TRACK_TITLE = "The Way You Look At Me";
 const TRACK_ARTIST = "Nyoman Paul, Andi Rianto";
 
 /**
  * WeddingMusicPlayer
- * Memutar lagu pernikahan (MP3) pakai HTML5 <audio>.
- * UI sama seperti sebelumnya: album art, judul, seek bar,
- * loop, restart, play/pause, dan mute.
+ * UI pemutar lagu pernikahan. Audio-nya sendiri adalah singleton dari
+ * @/lib/wedding-audio (biar bisa di-autoplay dari tombol "Buka undangan"
+ * dan tetap jalan walau UI re-render).
+ *
+ * Kontrol: loop, restart, play/pause, mute + seek bar.
  */
 export function WeddingMusicPlayer() {
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [progress, setProgress] = React.useState(0); // 0..1
   const [loop, setLoop] = React.useState(true);
   const [muted, setMuted] = React.useState(false);
   const [duration, setDuration] = React.useState(0); // detik, dari metadata
 
+  // Sinkron state awal + pasang listeners ke audio singleton.
+  React.useEffect(() => {
+    const audio = getWeddingAudio();
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+    const onTimeUpdate = () => {
+      if (audio.duration > 0) setProgress(audio.currentTime / audio.duration);
+    };
+    const onLoadedMetadata = () =>
+      setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
+
+    // state awal (audio mungkin sudah diputar dari "Buka undangan")
+    setIsPlaying(!audio.paused);
+    setLoop(audio.loop);
+    setMuted(audio.muted);
+    onLoadedMetadata();
+    if (audio.duration > 0) setProgress(audio.currentTime / audio.duration);
+
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("loadedmetadata", onLoadedMetadata);
+    return () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+    };
+  }, []);
+
   const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = getWeddingAudio();
     if (audio.paused) {
       void audio.play().catch(() => setIsPlaying(false));
     } else {
@@ -33,22 +69,26 @@ export function WeddingMusicPlayer() {
   };
 
   const restart = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = getWeddingAudio();
     audio.currentTime = 0;
     setProgress(0);
   };
 
   const seek = (v: number) => {
-    const audio = audioRef.current;
-    if (!audio || !duration) return;
+    const audio = getWeddingAudio();
+    if (!duration) return;
     audio.currentTime = v * duration;
     setProgress(v);
   };
 
+  const toggleLoop = () => {
+    const audio = getWeddingAudio();
+    audio.loop = !audio.loop;
+    setLoop(audio.loop);
+  };
+
   const toggleMute = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = getWeddingAudio();
     audio.muted = !audio.muted;
     setMuted(audio.muted);
   };
@@ -64,23 +104,6 @@ export function WeddingMusicPlayer() {
 
   return (
     <div className="mx-auto w-full max-w-sm rounded-2xl bg-[#2f3465] p-3 text-cream shadow-lg">
-      <audio
-        ref={audioRef}
-        src={TRACK_SRC}
-        preload="metadata"
-        loop={loop}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onEnded={() => {
-          setIsPlaying(false);
-          setProgress(0);
-        }}
-        onTimeUpdate={(e) => {
-          const a = e.currentTarget;
-          if (a.duration > 0) setProgress(a.currentTime / a.duration);
-        }}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
-      />
       <div className="flex items-center gap-3">
         {/* album art */}
         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-[#3a4170] ring-2 ring-cream/40">
@@ -123,7 +146,7 @@ export function WeddingMusicPlayer() {
       {/* controls */}
       <div className="mt-2.5 flex items-center justify-center gap-4 text-cream">
         <button
-          onClick={() => setLoop((v) => !v)}
+          onClick={toggleLoop}
           aria-label="Loop"
           aria-pressed={loop}
           className={`transition hover:text-mustard ${loop ? "text-mustard" : "text-cream/60"}`}
