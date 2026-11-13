@@ -8,6 +8,28 @@ import {
   FlowerCluster,
 } from "../decorations";
 
+const WA_NUMBER = "085183256967";
+const IG_URL = "https://www.instagram.com/memoraainvitation/";
+const TIKTOK_URL = "https://www.tiktok.com/@memoraainvtitation._.";
+
+/** Link WhatsApp langsung ke nomor (format internasional tanpa +). */
+const WA_LINK = `https://wa.me/62${WA_NUMBER.replace(/^0/, "")}`;
+
+type SocialLink = {
+  href: string;
+  icon: string;
+  alt: string;
+  label: string;
+  /** ukuran tampilan ikon (h & w dalam px) */
+  size: number;
+};
+
+const SOCIALS: SocialLink[] = [
+  { href: WA_LINK, icon: "/images/socmed-wa.png", alt: "WhatsApp MemoraA", label: "WhatsApp", size: 52 },
+  { href: IG_URL, icon: "/images/socmed-ig.png", alt: "Instagram MemoraA", label: "Instagram", size: 40 },
+  { href: TIKTOK_URL, icon: "/images/socmed-tiktok.png", alt: "TikTok MemoraA", label: "TikTok", size: 34 },
+];
+
 export function ClosingSection() {
   return (
     <section
