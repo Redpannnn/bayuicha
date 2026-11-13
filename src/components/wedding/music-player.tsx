@@ -4,8 +4,8 @@ import * as React from "react";
 import { Play, Pause, SkipBack, SkipForward, Repeat, Volume2, VolumeX } from "lucide-react";
 import { getWeddingAudio } from "@/lib/wedding-audio";
 
-const TRACK_TITLE = "The Way You Look At Me";
-const TRACK_ARTIST = "Nyoman Paul, Andi Rianto";
+const TRACK_TITLE = "Kasih Putih";
+const TRACK_ARTIST = "Glenn Fredly";
 
 /**
  * WeddingMusicPlayer
