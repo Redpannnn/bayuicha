@@ -47,7 +47,9 @@ export function InvitationSection() {
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
               Bayu Pamungkas 
               <br />
-              Putra dari bapak Warsito dan ibu Ginah
+              Putra dari 
+              <br />
+              bapak Warsito dan ibu Ginah
             </p>
           </div>
 
@@ -64,7 +66,9 @@ export function InvitationSection() {
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
               Aisyah Putri
               <br />
-              Putri dari bapak Kasaruddin dan ibu Sattia
+              Putri dari 
+              <br />
+              bapak Kasaruddin dan ibu Sattia
             </p>
           </div>
         </div>
