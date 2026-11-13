@@ -20,9 +20,6 @@ export const metadata: Metadata = {
   description: "Undangan Pernikahan Bayu & Icha. 7 Desember 2026.",
   keywords: ["undangan", "pernikahan", "wedding", "Bayu", "Icha"],
   authors: [{ name: "Bayu & Icha" }],
-  icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
-  },
   openGraph: {
     title: "Bayu & Icha - The Wedding",
     description: "Undangan Pernikahan Bayu & Icha. 7 Desember 2026.",
