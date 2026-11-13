@@ -51,15 +51,8 @@ export function SaveTheDateSection() {
             (Surah Ar-Rum:21)
           </p>
 
-          {/* music hint */}
-          <p className="mt-5 flex items-center justify-center gap-1 font-hand text-lg text-cream">
-            <span>Ketuk tombol</span>
-            <span aria-hidden>▶</span>
-            <span>untuk memutar musik!</span>
-          </p>
-
           {/* music player */}
-          <div className="mt-3">
+          <div className="mt-5">
             <WeddingMusicPlayer />
           </div>
         </ScallopedCard>
