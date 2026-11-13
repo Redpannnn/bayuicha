@@ -50,7 +50,9 @@ export function InvitationSection() {
               <br />
               Putra dari
               <br />
-              bapak Warsito dan ibu Ginah
+              <span className="whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
+                bapak Warsito dan ibu Ginah
+              </span>
             </p>
           </div>
 
@@ -70,7 +72,9 @@ export function InvitationSection() {
               <br />
               Putri dari
               <br />
-              bapak Kasaruddin dan ibu Sattia
+              <span className="whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
+                bapak Kasaruddin dan ibu Sattia
+              </span>
             </p>
           </div>
         </div>
