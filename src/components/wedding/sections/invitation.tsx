@@ -33,7 +33,7 @@ export function InvitationSection() {
         </p>
 
         {/* couple frames */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="relative grid grid-cols-2 gap-3">
           <div className="flex flex-col items-center">
             <OrnateFrame className="h-[230px] w-full">
               { }
@@ -50,7 +50,7 @@ export function InvitationSection() {
               <br />
               Putra dari
               <br />
-              <span className="whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
+              <span className="mt-2 inline-block whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
                 bapak Warsito dan ibu Ginah
               </span>
             </p>
@@ -72,16 +72,19 @@ export function InvitationSection() {
               <br />
               Putri dari
               <br />
-              <span className="whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
+              <span className="mt-2 inline-block whitespace-nowrap text-[clamp(11px,3.6vw,16px)]">
                 bapak Kasaruddin dan ibu Sattia
               </span>
             </p>
           </div>
-        </div>
 
-        {/* ampersand between names (decorative) */}
-        <div className="pointer-events-none -mt-1 mb-2 text-center font-display text-4xl text-maroon">
-          &amp;
+          {/* ampersand between names (decorative) */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-[294px] -translate-x-1/2 font-display text-4xl leading-none text-maroon"
+          >
+            &amp;
+          </span>
         </div>
       </div>
     </section>
