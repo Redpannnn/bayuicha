@@ -45,9 +45,9 @@ export function InvitationSection() {
             </OrnateFrame>
             <h3 className="mt-3 font-hand text-3xl font-bold text-maroon">Bayu</h3>
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
-              Putra dari bapak ...
+              Putra dari bapak Warsito
               <br />
-              dan ibu ...
+              dan ibu Ginah
             </p>
           </div>
 
