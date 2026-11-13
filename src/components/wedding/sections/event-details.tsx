@@ -59,6 +59,15 @@ function EventCard({ event }: { event: EventDetail }) {
           <span className="font-hand text-2xl font-bold leading-snug text-maroon">
             {event.location}
           </span>
+          <a
+            href="https://maps.app.goo.gl/CyYcCDJZAek4gEQbA"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-full bg-maroon px-6 py-2.5 font-hand text-xl font-semibold text-cream shadow-md transition-all hover:bg-maroon-deep hover:shadow-lg active:scale-95"
+          >
+            <MapPin className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+            <span>Buka Lokasi</span>
+          </a>
         </p>
       </div>
     </div>
