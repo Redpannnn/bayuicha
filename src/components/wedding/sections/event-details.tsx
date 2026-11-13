@@ -25,7 +25,7 @@ const EVENTS: EventDetail[] = [
   {
     name: "Resepsi",
     dayDate: "Senin, 7 Desember 2026",
-    time: "Pukul 10.00 - Selesai",
+    time: "Pukul 19.00 - Selesai",
     location: "DEPT. TEKNIK PT. LTT",
   },
 ];
