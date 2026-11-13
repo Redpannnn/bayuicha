@@ -20,7 +20,7 @@ function useCopy() {
 export function GiftSection() {
   const { copied, copy } = useCopy();
 
-  const account = { id: "icha", name: "Icha", number: "901087216732" };
+  const account = { id: "icha", name: "AISYAH PUTRI", number: "901087216732" };
 
   return (
     <section
