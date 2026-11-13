@@ -10,6 +10,7 @@ import { CountdownSection } from "@/components/wedding/sections/countdown";
 import { RsvpSection } from "@/components/wedding/sections/rsvp";
 import { ClosingSection } from "@/components/wedding/sections/closing";
 import GuestManager from "@/components/wedding/guest-manager";
+import { playWeddingMusic } from "@/lib/wedding-audio";
 
 export default function Home() {
   const [opened, setOpened] = React.useState(false);
@@ -23,6 +24,9 @@ export default function Home() {
 
   const handleOpen = React.useCallback(() => {
     setOpened(true);
+    // Autoplay musik — dipanggil di dalam click handler (user gesture),
+    // jadi lolos aturan autoplay browser.
+    playWeddingMusic();
     requestAnimationFrame(() => {
       const el = document.getElementById("save-the-date");
       el?.scrollIntoView({ behavior: "smooth", block: "start" });
