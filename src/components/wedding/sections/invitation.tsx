@@ -45,7 +45,7 @@ export function InvitationSection() {
             </OrnateFrame>
             <h3 className="mt-3 font-hand text-3xl font-bold text-maroon">Bayu</h3>
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
-              Bayu Pamungkas 
+              Bayu Pamungkas, S.HUT 
               <br />
               Putra dari 
               <br />
@@ -64,7 +64,7 @@ export function InvitationSection() {
             </OrnateFrame>
             <h3 className="mt-3 font-hand text-3xl font-bold text-maroon">Icha</h3>
             <p className="mt-1 text-center font-hand text-base leading-tight text-navy">
-              Aisyah Putri
+              Aisyah Putri, S.HUT 
               <br />
               Putri dari 
               <br />
